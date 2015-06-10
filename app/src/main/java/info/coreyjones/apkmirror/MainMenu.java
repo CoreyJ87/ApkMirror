@@ -6,14 +6,16 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.DownloadListener;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.Toast;
 
 
@@ -21,72 +23,89 @@ public class MainMenu extends ActionBarActivity {
 
     protected final String siteURL = "http://apkmirror.com";
     protected WebView theWebView;
-    protected boolean actionBarState = true;
+    //protected boolean actionBarState = true;
+    protected boolean fullScreen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_PROGRESS);
+        getWindow().setFeatureInt(Window.FEATURE_PROGRESS, Window.PROGRESS_VISIBILITY_ON);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-        theWebView = setupWebView(siteURL, R.id.webView, savedInstanceState);
-        theWebView.setDownloadListener(new DownloadListener() {
-            public void onDownloadStart(String url, String userAgent,
-                                        String contentDisposition, String mimetype,
-                                        long contentLength) {
-                DownloadManager.Request request = new DownloadManager.Request(
-                        Uri.parse(url));
-                request.allowScanningByMediaScanner();
-                request.setDescription("Downloading"+theWebView.getTitle());
-                request.setTitle(theWebView.getTitle());
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, theWebView.getTitle()+".apk");
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(request);
 
-            }
-        });
+        theWebView = setupWebView(siteURL, R.id.webView, savedInstanceState);
+        initDownloadListener();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        // Save the state of the WebView
         theWebView.saveState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
-        // Restore the state of the WebView
         theWebView.restoreState(savedInstanceState);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //initSettingsMenu();
+            return true;
+        } else if (id == R.id.action_immersive) {
+            toggleHideyBar();
+            if (fullScreen) {
+                toastMessage(getString(R.string.fullScreenOff));
+                //showActionBar();
+                fullScreen = !fullScreen;
+            } else {
+                toastMessage(getString(R.string.fullScreenOn));
+                //hideActionBar();
+                fullScreen = !fullScreen;
+            }
+        } else if (id == R.id.refresh_window) {
+            refreshPage(R.id.webView);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        WebView myWebView = (WebView) findViewById(R.id.webView);
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && myWebView.canGoBack()) {
+            myWebView.goBack();
             return true;
         }
-
-        return super.onOptionsItemSelected(item);
+        return super.onKeyDown(keyCode, event);
     }
 
     //WebView Creator
     protected WebView setupWebView(String theURL, int TheViewID, Bundle savedInstanceState) {
         WebView theWebView = (WebView) findViewById(TheViewID);
+        theWebView.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+                String title = String.format("%s - Loading...",getString(R.string.app_name));
+                setTitle(title);
+                findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+                setProgress(progress * 100);
+
+                if (progress == 100) {
+                    setTitle(R.string.app_name);
+                    findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                }
+            }
+        });
         theWebView.setWebViewClient(new WebViewClient());
 
         WebSettings webSettings = theWebView.getSettings();
@@ -98,37 +117,26 @@ public class MainMenu extends ActionBarActivity {
             // Load a page
             theWebView.loadUrl(theURL);
         }
-
         return theWebView;
     }
 
-    //Hide Action Bar
-    /* public void toggleActionBar(View view) {
-        if (getSupportActionBar() != null && actionBarState) {
-            hideActionBar();
-        } else if (getSupportActionBar() != null && actionBarState == false) {
-            showActionBar();
-        }
-
+    protected void initDownloadListener(){
+        theWebView.setDownloadListener(new DownloadListener() {
+            public void onDownloadStart(String url, String userAgent,
+                                        String contentDisposition, String mimetype,
+                                        long contentLength) {
+                DownloadManager.Request request = new DownloadManager.Request(
+                        Uri.parse(url));
+                request.allowScanningByMediaScanner();
+                request.setDescription(String.format("Downloading: %s",theWebView.getTitle()));
+                request.setTitle(theWebView.getTitle());
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, theWebView.getTitle() + ".apk");
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                dm.enqueue(request);
+            }
+        });
     }
-
-   public void hideActionBar() {
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-            actionBarState = !actionBarState;
-            Button hideButton = (Button) findViewById(R.id.hideBar);
-            hideButton.setText(getString(R.string.showBar));
-        }
-    }
-
-    public void showActionBar() {
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().show();
-            actionBarState = !actionBarState;
-            Button hideButton = (Button) findViewById(R.id.hideBar);
-            hideButton.setText(getString(R.string.hideBar));
-        }
-    }*/
 
     //Refresh WebView - Pass in R.id.controlID
     protected void refreshPage(int TheID) {
@@ -170,5 +178,34 @@ public class MainMenu extends ActionBarActivity {
         this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
         //END_INCLUDE (set_ui_flags)
     }
+
+
+    //Hide Action Bar
+    /* public void toggleActionBar(View view) {
+        if (getSupportActionBar() != null && actionBarState) {
+            hideActionBar();
+        } else if (getSupportActionBar() != null && actionBarState == false) {
+            showActionBar();
+        }
+
+    }
+
+   public void hideActionBar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+            actionBarState = !actionBarState;
+            Button hideButton = (Button) findViewById(R.id.hideBar);
+            hideButton.setText(getString(R.string.showBar));
+        }
+    }
+
+    public void showActionBar() {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().show();
+            actionBarState = !actionBarState;
+            Button hideButton = (Button) findViewById(R.id.hideBar);
+            hideButton.setText(getString(R.string.hideBar));
+        }
+    }*/
 
 }

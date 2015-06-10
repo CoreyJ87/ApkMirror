@@ -1,0 +1,6 @@
+<resources>
+    <color name="black_overlay">#66000000</color>
+    <color name="white">#FFF</color>
+    <color name="pink">#F0F</color>
+    <color name="dark_red">#ff7b0101</color>
+</resources>

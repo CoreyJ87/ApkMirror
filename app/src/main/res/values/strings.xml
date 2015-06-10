@@ -3,7 +3,15 @@
 
 
     <string name="action_settings">Settings</string>
+
+
+    <!--Toast Text-->
+    <string name="fullScreenOff">Full Screen mode: OFF!</string>
+    <string name="fullScreenOn">Full Screen mode: ON!</string>
     <string name="refreshString">Refreshing Page...</string>
+
+    <string name="refresh_window">Refresh</string>
+    <string name="action_immersive">Full Screen</string>
 
     <!--Button Text-->
     <string name="hideBar">Hide Bar</string>
