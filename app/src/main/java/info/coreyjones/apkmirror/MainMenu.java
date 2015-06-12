@@ -1,6 +1,7 @@
 package info.coreyjones.apkmirror;
 
 import android.app.DownloadManager;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -61,7 +62,7 @@ public class MainMenu extends ActionBarActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            //initSettingsMenu();
+            initInstallMenu();
             return true;
         } else if (id == R.id.action_immersive) {
             toggleHideyBar();
@@ -136,6 +137,11 @@ public class MainMenu extends ActionBarActivity {
                 dm.enqueue(request);
             }
         });
+    }
+    //Settings Menu Initialization
+    protected void initInstallMenu() {
+        Intent intent = new Intent(this, InstallMenu.class);
+        startActivity(intent);
     }
 
     //Refresh WebView - Pass in R.id.controlID

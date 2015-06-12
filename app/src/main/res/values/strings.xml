@@ -16,4 +16,7 @@
     <!--Button Text-->
     <string name="hideBar">Hide Bar</string>
     <string name="showBar">Show Bar</string>
+    <string name="title_activity_install_menu">Install Apps</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>
