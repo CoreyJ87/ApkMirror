@@ -11,5 +11,13 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/theLinear"></LinearLayout>
+        android:id="@+id/theLinear">
+
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gridView"
+            android:numColumns="2"
+            android:choiceMode="singleChoice" />
+    </LinearLayout>
 </RelativeLayout>

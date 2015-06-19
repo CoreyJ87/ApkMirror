@@ -2,23 +2,18 @@ package info.coreyjones.apkmirror;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.TextView;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.Arrays;
 
 public class InstallMenu extends ActionBarActivity {
 
@@ -29,12 +24,23 @@ public class InstallMenu extends ActionBarActivity {
         initFileList();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initFileList();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main_menu, menu);
+        return true;
+    }
+
 
     protected void initFileList() {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.theLinear);
         File sdCardRoot = Environment.getExternalStorageDirectory();
-        File yourDir = new File(sdCardRoot, "Download");
-        for (File f : yourDir.listFiles(new FilenameFilter() {
+        File downloadDir = new File(sdCardRoot, "Download");
+        File[] fileList = downloadDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
                 if (filename.endsWith(".apk")) {
@@ -43,38 +49,34 @@ public class InstallMenu extends ActionBarActivity {
                     return false;
                 }
             }
-        })) {
-            if (f.isFile()) {
-                String name = f.getName();
+        });
+        Arrays.sort(fileList);
 
-
-                Button installButton = new Button(this);
-                installButton.setText(name);
-                installButton.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT));
-                installButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        handleInstall(v);
-                    }
-                });
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    installButton.setId(Utils.generateViewId());
-
-                } else {
-                    installButton.setId(View.generateViewId());
-                }
-
-                layout.addView(installButton);
-
-            }
+        String[] theNamesOfFiles = new String[fileList.length*2];
+        int fileIndex = 0;
+        int installIndex = 1;
+        for (int i = 0; i < fileList.length; i++) {
+                theNamesOfFiles[fileIndex] = fileList[i].getName();
+                theNamesOfFiles[installIndex] = "Install";
+            fileIndex = fileIndex+2;
+            installIndex=installIndex+2;
         }
+        ArrayAdapter<String> fileAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_expandable_list_item_1,theNamesOfFiles);
+
+        final GridView theGrid = (GridView) findViewById(R.id.gridView);
+        theGrid.setAdapter(fileAdapter);
+        theGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                int itemNum = position-1;
+                TextView textView = (TextView)theGrid.getChildAt(itemNum);
+                handleInstall(textView);
+            }
+        });
     }
 
-    protected void handleInstall(View v) {
-        Button button = (Button) v.findViewById(v.getId());
-        String text = button.getText().toString();
+    protected void handleInstall(TextView v) {
+        String text = v.getText().toString();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/Download/" + text)), "application/vnd.android.package-archive");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
