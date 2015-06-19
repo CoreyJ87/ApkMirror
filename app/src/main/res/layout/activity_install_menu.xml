@@ -18,6 +18,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/gridView"
             android:numColumns="2"
-            android:choiceMode="singleChoice" />
+            android:choiceMode="singleChoice"
+            android:horizontalSpacing="2dp"
+            android:verticalSpacing="1dp" />
     </LinearLayout>
 </RelativeLayout>

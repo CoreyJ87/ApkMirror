@@ -2,7 +2,7 @@
     <string name="app_name">ApkMirror</string>
 
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Manage Apps</string>
 
 
     <!--Toast Text-->
@@ -16,7 +16,13 @@
     <!--Button Text-->
     <string name="hideBar">Hide Bar</string>
     <string name="showBar">Show Bar</string>
-    <string name="title_activity_install_menu">Install Apps</string>
+    <string name="title_activity_install_menu">Manage Apps</string>
 
     <string name="hello_world">Hello world!</string>
+    <string name="dialog_install_text">Install</string>
+    <string name="dialog_cancel_text">Cancel</string>
+    <string name="dialog_delete_text">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="fire">Delete</string>
+    <string name="deleteTheFile">Are you sure?</string>
 </resources>

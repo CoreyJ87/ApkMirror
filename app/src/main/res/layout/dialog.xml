@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <Button
+        android:id="@+id/dialogButtonInstall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_install_text"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        />
+    <Button
+        android:id="@+id/dialogButtonDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_delete_text"
+        android:layout_alignTop="@+id/dialogButtonCancel"
+        android:layout_toRightOf="@+id/dialogButtonCancel"
+        android:layout_toEndOf="@+id/dialogButtonCancel" />
+    <Button
+        android:id="@+id/dialogButtonCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_cancel_text"
+        android:layout_alignTop="@+id/dialogButtonInstall"
+        android:layout_toRightOf="@+id/dialogButtonInstall"
+        android:layout_toEndOf="@+id/dialogButtonInstall" />
+
+
+</RelativeLayout>
